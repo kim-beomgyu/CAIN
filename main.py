@@ -52,6 +52,10 @@ elif args.model.lower() == 'cain_noca':
     from model.cain_noca import CAIN_NoCA
     print("Building model: CAIN_NoCA")
     model = CAIN_NoCA(depth=args.depth)
+elif args.model.lower() == 'cain_pred':
+    from model.cain_pred import CAIN_Pred
+    print("Building model: CAIN_Pred")
+    model = CAIN_Pred(depth=args.depth)
 else:
     raise NotImplementedError("Unknown model!")
 # Just make every model to DataParallel

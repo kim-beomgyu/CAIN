@@ -330,6 +330,38 @@ class Interpolation(nn.Module):
         out = self.tailConv(res)
         return out
 
+class Interpolation_pred(nn.Module):
+    def __init__(self, n_resgroups, n_resblocks, n_feats, 
+                 reduction=16, act=nn.LeakyReLU(0.2, True), norm=False):
+        super(Interpolation, self).__init__()
+
+        # define modules: head, body, tail
+        self.headConv = conv3x3(n_feats * 2, n_feats)
+
+        modules_body = [
+            ResidualGroup(
+                RCAB,
+                n_resblocks=n_resblocks,
+                n_feat=n_feats,
+                kernel_size=3,
+                reduction=reduction, 
+                act=act, 
+                norm=norm)
+            for _ in range(n_resgroups)]
+        self.body = nn.Sequential(*modules_body)
+
+        self.tailConv = conv3x3(n_feats, n_feats)
+
+    def forward(self, x_list):
+        # Build input tensor
+        x = torch.cat(x_list, dim=1)
+        x = self.headConv(x)
+
+        res = self.body(x)
+        res += x
+
+        out = self.tailConv(res)
+        return out
 
 class Interpolation_res(nn.Module):
     def __init__(self, n_resgroups, n_resblocks, n_feats,
